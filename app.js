@@ -49,8 +49,8 @@ app.use('/api', tvshows);
 // });
 
 // http
-http.createServer(app).listen(80, function() {
-  console.log("Node server running on http://10.0.1.14:80");
+http.createServer(app).listen(3080, function() {
+  console.log("Node server running on http://10.0.1.14:3080");
 });
 
 // https
