@@ -49,17 +49,17 @@ app.use('/api', tvshows);
 // });
 
 // http
-http.createServer(app).listen(3080, function() {
-  console.log("Node server running on http://10.0.1.14:3080");
+http.createServer(app).listen(80, function() {
+  console.log("Node server running on http://10.0.1.14:80");
 });
 
 // https
 
-var options = {
-  key: fs.readFileSync('cert/key.pem'),
-  cert: fs.readFileSync('cert/cert.pem')
-};
+// var options = {
+//   key: fs.readFileSync('cert/key.pem'),
+//   cert: fs.readFileSync('cert/cert.pem')
+// };
 
-https.createServer(options, app).listen(3443, function() {
-  console.log("Secure Node server running on https://10.0.1.14:3443");
-});
+// https.createServer(options, app).listen(3443, function() {
+//   console.log("Secure Node server running on https://10.0.1.14:3443");
+// });
