@@ -1,14 +1,11 @@
 var express         = require("express"),
     app             = express(),
-    //http            = require('http'),
-    //https            = require('https'),
-    //fs              = require('fs'),
     bodyParser      = require("body-parser"),
     methodOverride  = require("method-override"),
     mongoose        = require('mongoose');
 
 // Connection to DB
-mongoose.connect('mongodb://client:B4d4p1np4$$w0rd@ds041188.mongolab.com:41188/badapin', function(err, res) {
+mongoose.connect(process.env.DATABASE_URL || 'mongodb://localhost/tvshows', function(err, res) {
   if(err) throw err;
   console.log('Connected to Database');
 });
@@ -45,21 +42,5 @@ app.use('/api', tvshows);
 
 // Start server
 app.listen(process.env.PORT || 3000, function() {
-  console.log("Node server running on http://localhost:3000");
+  console.log("Node server running on http://localhost:" + (process.env.PORT || 3000));
 });
-
-// http
-// http.createServer(app).listen(3080, function() {
-//   console.log("Node server running on http://10.0.1.14:3080");
-// });
-
-// https
-
-// var options = {
-//   key: fs.readFileSync('cert/key.pem'),
-//   cert: fs.readFileSync('cert/cert.pem')
-// };
-
-// https.createServer(options, app).listen(3443, function() {
-//   console.log("Secure Node server running on https://10.0.1.14:3443");
-// });
