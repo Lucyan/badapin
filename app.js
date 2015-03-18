@@ -5,7 +5,7 @@ var express         = require("express"),
     mongoose        = require('mongoose');
 
 // Connection to DB
-mongoose.connect(process.env.DATABASE_URL || 'mongodb://localhost/tvshows', function(err, res) {
+mongoose.connect(process.env.DATABASE_URL, function(err, res) {
   if(err) throw err;
   console.log('Connected to Database');
 });
@@ -41,6 +41,6 @@ tvshows.route('/tvshows/:id')
 app.use('/api', tvshows);
 
 // Start server
-app.listen(process.env.PORT || 3000, function() {
-  console.log("Node server running on http://localhost:" + (process.env.PORT || 3000));
+app.listen(process.env.PORT, function() {
+  console.log("Node server running on http://localhost:" + process.env.PORT);
 });
