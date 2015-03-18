@@ -1,8 +1,8 @@
 var express         = require("express"),
     app             = express(),
-    http            = require('http'),
-    https            = require('https'),
-    fs              = require('fs'),
+    //http            = require('http'),
+    //https            = require('https'),
+    //fs              = require('fs'),
     bodyParser      = require("body-parser"),
     methodOverride  = require("method-override"),
     mongoose        = require('mongoose');
@@ -44,14 +44,14 @@ tvshows.route('/tvshows/:id')
 app.use('/api', tvshows);
 
 // Start server
-// app.listen(3000, function() {
-//   console.log("Node server running on http://localhost:3000");
-// });
+app.listen(process.env.PORT || 3000, function() {
+  console.log("Node server running on http://localhost:3000");
+});
 
 // http
-http.createServer(app).listen(3080, function() {
-  console.log("Node server running on http://10.0.1.14:3080");
-});
+// http.createServer(app).listen(3080, function() {
+//   console.log("Node server running on http://10.0.1.14:3080");
+// });
 
 // https
 
