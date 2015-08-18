@@ -1,46 +1,37 @@
+/**
+ * Main application file
+ */
+
+'use strict';
+
 var express         = require("express"),
     app             = express(),
     bodyParser      = require("body-parser"),
     methodOverride  = require("method-override"),
+    busboy          = require('connect-busboy'),
+    path            = require('path'),
     mongoose        = require('mongoose');
 
 // Connection to DB
-mongoose.connect(process.env.DATABASE_URL, function(err, res) {
-  if(err) throw err;
-  console.log('Connected to Database');
-});
+mongoose.connect(process.env.DATABASE_URL);
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(methodOverride());
+app.use(busboy());
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Import Models and controllers
-var models     = require('./models/tvshow')(app, mongoose);
-var TVShowCtrl = require('./controllers/tvshows');
-
-// Example Route
-var router = express.Router();
-router.get('/', function(req, res) {
-  res.send("Hello world!");
-});
-app.use(router);
-
-// API routes
-var tvshows = express.Router();
-
-tvshows.route('/tvshows')
-  .get(TVShowCtrl.findAllTVShows)
-  .post(TVShowCtrl.addTVShow);
-
-tvshows.route('/tvshows/:id')
-  .get(TVShowCtrl.findById)
-  .put(TVShowCtrl.updateTVShow)
-  .delete(TVShowCtrl.deleteTVShow);
-
-app.use('/api', tvshows);
+// Routes
+require('./api/routes')(app);
 
 // Start server
-app.listen(process.env.PORT, function() {
-  console.log("Node server running on http://localhost:" + process.env.PORT);
+mongoose.connection.on('connected', function () {
+  console.log('Connected to Database');
+  app.listen(process.env.PORT, function() {
+    console.log("Node server running on http://localhost:" + process.env.PORT);
+  });
 });
+
+// Expose app
+exports = module.exports = app;
