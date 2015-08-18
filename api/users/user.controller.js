@@ -28,9 +28,17 @@ exports.addUser = function(req, res) {
 		if (err)
 				return res.status(500).json({err: err});
 
+		console.log('new user:')
+		console.log(user);
+		console.log('**********************')
+
 		User.findById(user._id).select('+token').exec(function(err, user) {
 			if (err)
 				return res.status(500).json({err: err});
+
+			console.log('send token:')
+			console.log(user);
+			console.log('**********************')
 
 			res.status(200).json(user);
 		});
