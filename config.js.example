@@ -1,0 +1,9 @@
+'use strict';
+
+module.exports = {
+	debug: true,
+	mongo: {
+		uri: ''
+	},
+	port: 3000
+};

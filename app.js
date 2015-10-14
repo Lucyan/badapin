@@ -10,10 +10,11 @@ var express         = require("express"),
     methodOverride  = require("method-override"),
     busboy          = require('connect-busboy'),
     path            = require('path'),
-    mongoose        = require('mongoose');
+    mongoose        = require('mongoose'),
+    config          = require('./config.js');
 
 // Connection to DB
-mongoose.connect(process.env.DATABASE_URL);
+mongoose.connect(config.mongo.uri);
 
 // Middlewares
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -28,8 +29,8 @@ require('./api/routes')(app);
 // Start server
 mongoose.connection.on('connected', function () {
   console.log('Connected to Database');
-  app.listen(process.env.PORT, function() {
-    console.log("Node server running on http://localhost:" + process.env.PORT);
+  app.listen(config.port, function() {
+    console.log("Node server running on http://localhost:" + config.port);
   });
 });
 
