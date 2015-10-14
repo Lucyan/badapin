@@ -1,0 +1,8 @@
+BASEPATH=`pwd`
+APPPATH="$BASEPATH"/app.js
+
+PATH_STDERR="$BASEPATH"/logs/stderr.log
+PATH_STDOUT="$BASEPATH"/logs/stdout.log
+PATH_OUTPUT="$BASEPATH"/logs/output.log
+
+forever start --append -e "$PATH_STDERR" -l "$PATH_OUTPUT" -o "$PATH_STDOUT" ---sourceDir $BASEPATH --workingDir $BASEPATH "$APPPATH"
