@@ -63,19 +63,15 @@ exports.index = function(req, res) {
 			return res.status(500).json({err: err});
 
 		if (user) {
-			
-			if (user.seguidos.length > 0) {
-				user.seguidos.push(user);
 
-				Stream.find({'user': {'$in' : user.seguidos}}).sort({created: -1}).populate('user', '_id nick avatar').exec(function(err, streams) {
-					if (err)
-						return res.status(500).json({err: err});
+			user.seguidos.push(user);
 
-					return res.status(200).json({ code : 0, streams: streams});
-				});
-			} else {
-				return res.status(200).json({code: 1, msg: "Sin seuidos"});
-			}
+			Stream.find({'user': {'$in' : user.seguidos}}).sort({created: -1}).populate('user', '_id nick avatar').exec(function(err, streams) {
+				if (err)
+					return res.status(500).json({err: err});
+
+				return res.status(200).json({ code : 0, streams: streams});
+			});
 		} else
 			return res.status(409).json({msg: "Token inválido"});
 	});
