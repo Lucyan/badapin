@@ -11,5 +11,7 @@ router.post('/upload', auth.hasRole('user'), controller.upload);
 router.post('/public', auth.hasRole('user'), controller.public);
 
 router.post('/votar', auth.hasRole('user'), controller.addVoto);
+router.get('/votar', controller.getVotacion);
+router.get('/votar/check', auth.hasRole('user'), controller.checkVotacion);
 
 module.exports = router;

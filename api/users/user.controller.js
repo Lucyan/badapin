@@ -16,12 +16,14 @@ exports.findAllUsers = function(req, res) {
 exports.addUser = function(req, res) {
 	console.log('Add User');
 
+	var birthday = req.body.birthday.split('/');
+
 	var user = new User({
 		email: req.body.email,
 		nick: req.body.nick,
 		password: req.body.password,
 		genre: req.body.genre,
-		birthday: new Date(req.body.birthday)
+		birthday: new Date(birthday[1] + '/' + birthday[0] + '/' + birthday[2])
 	});
 
 	user.save(function(err, user) {
@@ -68,11 +70,13 @@ exports.me = function(req, res) {
 
 	var token = req.get('Api-Token');
 
-	User.findOne({token: token}, function(err, user) {
+	User.findOne({token: token}).exec(function(err, user) {
 		if (err)
 			return res.status(500).json({err: err});
 
 		if (user) {
+			user.birthday_txt = user.birthday_txt;
+			console.log(user);
 			res.status(200).json(user);
 		} else
 			res.status(409).json({msg: "Token inválido"});
@@ -90,10 +94,12 @@ exports.update = function(req, res) {
 			return res.status(500).json({err: err});
 
 		if (user) {
+			var birthday = req.body.birthday.split('/');
+
 			user.email = req.body.email;
 			user.nick = req.body.nick;
 			user.genre = req.body.genre;
-			user.birthday = req.body.birthday;
+			user.birthday = new Date(birthday[1] + '/' + birthday[0] + '/' + birthday[2]);
 
 			user.save(function(err, user) {
 				if (err) return res.status(500).json({err: err});

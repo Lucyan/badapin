@@ -57,6 +57,15 @@ exports.index = function(req, res) {
 	console.log('get stream');
 
 	var token = req.get('Api-Token');
+	var limit = 10;
+	var last = new Date();
+	var first = null;
+
+	if (req.query.last != undefined)
+		last = new Date(req.query.last);
+
+	if (req.query.first != undefined)
+		first = new Date(req.query.first);
 
 	User.findOne({token: token}, function(err, user) {
 		if (err)
@@ -66,12 +75,30 @@ exports.index = function(req, res) {
 
 			user.seguidos.push(user);
 
-			Stream.find({'user': {'$in' : user.seguidos}}).sort({created: -1}).populate('user', '_id nick avatar').exec(function(err, streams) {
-				if (err)
-					return res.status(500).json({err: err});
+			var getStream = Stream.find({'user': {'$in' : user.seguidos}});
 
-				return res.status(200).json({ code : 0, streams: streams});
-			});
+			if (first == null) {
+				getStream.where('created').lt(last)
+					.sort({created: -1})
+					.limit(limit)
+			} else {
+				getStream.where('created').gt(first)
+					.sort({created: 1})
+			}
+				
+			getStream.populate('user', '_id nick avatar')
+				.exec(function(err, streams) {
+					if (err)
+						return res.status(500).json({err: err});
+
+					if (streams.length > 0)
+						return res.status(200).json({ code : 0, streams: streams});
+					else if (first == null)
+						return res.status(200).json({ code : 1 });
+					else
+						return res.status(200).json({ code : 2 });
+				}
+			);
 		} else
 			return res.status(409).json({msg: "Token inválido"});
 	});
@@ -83,7 +110,7 @@ exports.addVoto = function(req, res) {
 
 	var token = req.get('Api-Token');
 
-	User.findOne({token: token}, function(err, user) {
+	User.findOne({token: token, votaciones: { $ne: mongoose.Types.ObjectId(req.body.stream_id) }}, function(err, user) {
 		if (err)
 			return res.status(500).json({err: err});
 
@@ -125,14 +152,30 @@ exports.addVoto = function(req, res) {
 									if (err)
 										return res.status(500).json({err: err});
 
+									user.votaciones.push(stream);
+									user.save();
+
 									Stream.findById(stream._id).populate('votacion', '-_id -stream').exec(function(err, stream) {
 										if (err)
 											return res.status(500).json({err: err});
 
-										return res.status(200).json(stream);
+										for (var i = 0; i < stream.votacion.length - 1; i++) {
+											for (var j = i + 1; j < stream.votacion.length; j++) {
+												if (stream.votacion[i].votos < stream.votacion[j].votos) {
+													var aux = stream.votacion[i];
+													stream.votacion[i] = stream.votacion[j];
+													stream.votacion[j] = aux;
+												}
+											}
+										}
+
+										return res.status(200).json(stream.votacion);
 									});
 								});
 							} else {
+								user.votaciones.push(stream);
+								user.save();
+
 								Stream.findById(stream._id).populate('votacion', '-_id -stream').exec(function(err, stream) {
 									if (err)
 										return res.status(500).json({err: err});
@@ -145,8 +188,41 @@ exports.addVoto = function(req, res) {
 				} else
 					return res.status(409).json({msg: "Stream no existe"});
 			});
-
 		} else
-			return res.status(409).json({msg: "Token inválido"});
+			return res.status(409).json({msg: "Token inválido o ya votaste"});
 	});
 }
+
+exports.checkVotacion = function(req, res) {
+	console.log("check votacion");
+
+	var token = req.get('Api-Token');
+
+	User.findOne({token: token, votaciones: { $in: [mongoose.Types.ObjectId(req.query.stream_id)] }}).exec(function(err, user) {
+		if (err) return res.status(500).json({err: err});
+
+		if (user)
+			return res.status(409).json({code: 0, msg: "Token inválido o ya votaste"});
+		else
+			return res.status(200).json({code: 1, msg: "No has votado"});
+	});
+}
+
+exports.getVotacion = function(req, res) {
+	Stream.findById(req.query.stream_id).populate('votacion', '-_id -stream').exec(function(err, stream) {
+		if (err)
+			return res.status(500).json({err: err});
+
+		for (var i = 0; i < stream.votacion.length - 1; i++) {
+			for (var j = i + 1; j < stream.votacion.length; j++) {
+				if (stream.votacion[i].votos < stream.votacion[j].votos) {
+					var aux = stream.votacion[i];
+					stream.votacion[i] = stream.votacion[j];
+					stream.votacion[j] = aux;
+				}
+			}
+		}
+
+		return res.status(200).json(stream.votacion);
+	});
+} 
